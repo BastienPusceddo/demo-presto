@@ -7,6 +7,19 @@ This project demonstrates a **PrestoDB federated query engine** working across *
 - **Cassandra** – wide-column NoSQL  
 - **PrestoDB** – executes SQL queries joining all three
 
+The dataset is **not included** in this repository (too large).  
+Instead, download it manually from:
+
+ **https://mavenanalytics.io/data-playground/airline-flight-delays**
+
+Extract the ZIP archive and place these four CSV files into the `data/` directory:
+
+- `airlines.csv`
+- `airports.csv`
+- `cancellation_codes.csv`
+- `flights.csv`
+
+
 It also includes **full automation scripts** to load all four CSV datasets, and a **manual fallback procedure** for each database if the scripts fail.
 
 ---
