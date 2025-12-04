@@ -44,7 +44,7 @@ presto-demo/
 │  ├─ worker1/etc/...
 │  ├─ worker2/etc/...
 │  └─ worker3/etc/...
-└─ scripts/
+└─ script/
    ├─ init-mysql.sql
    ├─ init-cassandra.cql
    ├─ init-mongodb.sh
@@ -91,7 +91,7 @@ Presto UI:
 One command loads *all four datasets* into the three systems:
 
 ```bash
-./scripts/init-all.sh
+./script/init-all.sh
 ```
 
 This script:
