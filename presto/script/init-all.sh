@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-DATA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../data" && pwd)"
+DATA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../data" && pwd)"
 
 echo "==== MySQL: copying CSVs ===="
 docker cp "$DATA_DIR/airlines.csv" mysql:/var/lib/mysql-files/airlines.csv

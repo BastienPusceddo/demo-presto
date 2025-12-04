@@ -24,6 +24,50 @@ It also includes **full automation scripts** to load all four CSV datasets, and 
 
 ---
 
+
+#  IMPORTANT FOR WINDOWS USERS: WSL2 REQUIRED
+
+This project uses **Bash scripts (`.sh`)** for automated data loading.
+
+###  These scripts do NOT work on:
+- Windows PowerShell  
+- Windows CMD  
+
+###  You MUST use **WSL2 (Ubuntu or Debian)** on Windows  
+Otherwise automation will fail.
+
+Open your project via WSL:
+
+```bash
+cd /mnt/c/Users/<your_name>/presto-demo
+./scripts/init-all.sh
+```
+
+If you cannot use WSL, follow the manual data loading instructions later in the README.
+
+---
+# Fix Script Permissions (Linux/macOS/WSL2)
+
+If you see permission denied when running a script, simply run:
+
+```bash
+chmod +x scripts/*.sh
+```
+
+
+Or individually:
+```bash
+chmod +x scripts/init-all.sh
+chmod +x scripts/init-mongodb.sh
+```
+
+Then execute normally:
+```bash
+./scripts/init-all.sh
+```
+
+---
+
 # 1. Project Structure
 
 ```
@@ -93,6 +137,9 @@ One command loads *all four datasets* into the three systems:
 ```bash
 ./script/init-all.sh
 ```
+
+
+
 
 This script:
 

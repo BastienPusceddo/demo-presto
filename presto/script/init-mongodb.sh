@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -e
 
-DATA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../data" && pwd)"
+DATA_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/../../data" && pwd)"
 
 echo "[MongoDB] Copying airports.csv into container..."
 docker cp "$DATA_DIR/airports.csv" mongodb:/tmp/airports.csv
