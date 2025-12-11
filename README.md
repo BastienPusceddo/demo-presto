@@ -467,7 +467,6 @@ ORDER BY 1, nb DESC;
 
 ## 8.4 Joins across ALL THREE databases (MySQL + MongoDB + Cassandra)
 
-### The “Wow” query
 ```sql
 SELECT
   ap.CITY,
