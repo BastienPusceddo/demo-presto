@@ -330,11 +330,7 @@ cassandra.load-policy.local.dc=datacenter1
 
 ---
 
-# 7. Presto Demo Queries
-
-Run these in the Presto UI.
-
----
+# 7. Basic Presto Demo Queries
 
 ## 7.1 Catalog checks
 
@@ -344,8 +340,6 @@ SHOW SCHEMAS FROM mysql;
 SHOW SCHEMAS FROM mongodb;
 SHOW SCHEMAS FROM cassandra;
 ```
-
----
 
 ## 7.2 MySQL: Average delay by airline
 
@@ -365,8 +359,6 @@ ORDER BY avg_delay DESC
 LIMIT 10;
 ```
 
----
-
 ## 7.3 MySQL + MongoDB: Busiest origin cities
 
 ```sql
@@ -381,8 +373,6 @@ GROUP BY ap.CITY, ap.STATE
 ORDER BY nb_departures DESC
 LIMIT 10;
 ```
-
----
 
 ## 7.4 MySQL + Cassandra: Cancelled flights by reason
 
@@ -399,6 +389,133 @@ ORDER BY nb_cancelled DESC;
 ```
 
 ---
+
+# 8. Additional Demo Queries (Full Set)
+
+## 8.1 MySQL-only analytical queries
+
+### Top 10 airlines by number of flights
+```sql
+SELECT a.AIRLINE, COUNT(*) nb_flights
+FROM mysql.demo.flights f
+JOIN mysql.demo.airlines a ON f.AIRLINE = a.IATA_CODE
+GROUP BY a.AIRLINE
+ORDER BY nb_flights DESC
+LIMIT 10;
+```
+
+### Distance average by day
+```sql
+SELECT DAY, AVG(DISTANCE) AS avg_distance
+FROM mysql.demo.flights
+GROUP BY DAY
+ORDER BY DAY;
+```
+
+---
+
+## 8.2 MySQL + MongoDB (federated SQL + NoSQL)
+
+### Delay average per origin city
+```sql
+SELECT ap.CITY, AVG(f.ARRIVAL_DELAY) avg_delay
+FROM mysql.demo.flights f
+JOIN mongodb.demo.airports ap ON f.ORIGIN_AIRPORT = ap.IATA_CODE
+WHERE f.ARRIVAL_DELAY IS NOT NULL
+GROUP BY ap.CITY
+ORDER BY avg_delay DESC
+LIMIT 20;
+```
+
+### Distance average per city
+```sql
+SELECT ap.CITY, AVG(f.DISTANCE) avg_distance
+FROM mysql.demo.flights f
+JOIN mongodb.demo.airports ap ON f.ORIGIN_AIRPORT = ap.IATA_CODE
+GROUP BY ap.CITY
+ORDER BY avg_distance DESC
+LIMIT 20;
+```
+
+---
+
+## 8.3 MySQL + Cassandra (federated SQL + wide-column NoSQL)
+
+### Cancellation % per airline
+```sql
+SELECT a.AIRLINE,
+       ROUND(100.0 * SUM(f.CANCELLED) / COUNT(*), 2) AS cancellation_rate
+FROM mysql.demo.flights f
+JOIN mysql.demo.airlines a ON f.AIRLINE = a.IATA_CODE
+GROUP BY a.AIRLINE
+ORDER BY cancellation_rate DESC;
+```
+
+### Cancellation reasons by hour
+```sql
+SELECT floor(f.SCHEDULED_DEPARTURE / 100) AS departure_hour,
+       cc.cancellation_description,
+       COUNT(*) AS nb
+FROM mysql.demo.flights f
+JOIN cassandra.demo.cancellation_codes cc ON f.CANCELLATION_REASON = cc.cancellation_reason
+WHERE f.CANCELLED = 1
+GROUP BY 1, cc.cancellation_description
+ORDER BY 1, nb DESC;
+```
+
+---
+
+## 8.4 Joins across ALL THREE databases (MySQL + MongoDB + Cassandra)
+
+### The “Wow” query
+```sql
+SELECT
+  ap.CITY,
+  a.AIRLINE,
+  cc.cancellation_description,
+  COUNT(*) AS nb_flights,
+  AVG(f.ARRIVAL_DELAY) AS avg_delay
+FROM mysql.demo.flights f
+LEFT JOIN mongodb.demo.airports ap
+    ON f.ORIGIN_AIRPORT = ap.IATA_CODE
+LEFT JOIN mysql.demo.airlines a
+    ON f.AIRLINE = a.IATA_CODE
+LEFT JOIN cassandra.demo.cancellation_codes cc
+    ON f.CANCELLATION_REASON = cc.cancellation_reason
+GROUP BY ap.CITY, a.AIRLINE, cc.cancellation_description
+ORDER BY nb_flights DESC
+LIMIT 20;
+```
+
+---
+
+## 8.5 Fun queries
+
+### Flights arriving early
+```sql
+SELECT COUNT(*) AS arrived_early
+FROM mysql.demo.flights
+WHERE ARRIVAL_DELAY < 0;
+```
+
+### Cities with most weather delay
+```sql
+SELECT ap.CITY, SUM(f.WEATHER_DELAY) AS total_weather_delay
+FROM mysql.demo.flights f
+JOIN mongodb.demo.airports ap ON f.ORIGIN_AIRPORT = ap.IATA_CODE
+GROUP_BY ap.CITY
+ORDER BY total_weather_delay DESC
+LIMIT 10;
+```
+
+### Airline flying the longest distances
+```sql
+SELECT a.AIRLINE, AVG(f.DISTANCE) avg_dist
+FROM mysql.demo.flights f
+JOIN mysql.demo.airlines a ON f.AIRLINE = a.IATA_CODE
+GROUP BY a.AIRLINE
+ORDER BY avg_dist DESC;
+```
 
 # 8. Stopping and Cleaning Up
 
